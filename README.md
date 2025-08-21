@@ -1,3 +1,9 @@
+## Docker
+```bash
+docker-compose up --build -d
+```
+
+## Tables
 ```sql
 
 -- Tabela de usuários

@@ -13,6 +13,7 @@ spl_autoload_register(
     }
 );
 
+require base_path('bootstrap.php');
 
 $router = new \Core\Router();
 

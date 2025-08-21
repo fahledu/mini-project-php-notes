@@ -1,12 +1,10 @@
 <?php
 
-use Core\Database;
+use Core\App;
 
-$config = require base_path("config.php");
-$db = new Database($config['database']);
+$db = App::resolve('Core\Database');
 
 $currentUserId = 1;
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $note = $db->query('select * from notes where id = :id', ['id' => $_GET['id']])->findOrFail();
@@ -20,5 +18,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('location: /notes');
 
     exit();
-
-} 
+}
