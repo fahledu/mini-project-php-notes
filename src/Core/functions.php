@@ -40,21 +40,9 @@ function view($path, $attributes = [])
     extract($attributes);
     require BASE_PATH('views/' . $path);
 }
-function login($user)
+
+function redirect($path)
 {
-    $_SESSION['user'] = [
-        'email' => $user['email']
-    ];
-
-    session_regenerate_id(true);
-}
-
-
-function logout()
-{
-    $_SESSION = [];
-    session_destroy();
-
-    $param = session_get_cookie_params();
-    setcookie('PHPSESSID', '', time() - 3600, $param['path'], $param['domain'], $param['secure'], $param['httponly']);
+    header("location: {$path}");
+    exit();
 }
