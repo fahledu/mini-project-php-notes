@@ -1,25 +1,26 @@
 FROM php:8.2-apache
 
-# Ativa o mod_rewrite
+# Ativa mod_rewrite e outras configs do Apache
 RUN a2enmod rewrite
-
-# Permite uso de .htaccess na configuração global do Apache
 RUN sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
-
-# Instala PDO MySQL
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Define o DocumentRoot como /var/www/html/public
+# Instala Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copia código
+COPY ./src /var/www/html
+
+# Define document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-
-# Ajusta os arquivos de configuração do Apache
+# Ajustes Apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/sites-available/*.conf \
     /etc/apache2/apache2.conf \
     /etc/apache2/conf-available/*.conf
 
-# Cria uma configuração de diretório para permitir acesso
+# Configura diretório público
 RUN echo '<Directory /var/www/html/public>\n\
     Options Indexes FollowSymLinks\n\
     AllowOverride All\n\
@@ -27,6 +28,6 @@ RUN echo '<Directory /var/www/html/public>\n\
     </Directory>' > /etc/apache2/conf-available/public.conf \
     && a2enconf public
 
-# Copia o código da aplicação
-COPY ./src /var/www/html
-
+# Workdir e instalação de dependências
+WORKDIR /var/www/html
+RUN composer install
