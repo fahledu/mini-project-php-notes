@@ -1,9 +1,16 @@
 FROM php:8.2-apache
 
 # Ativa mod_rewrite e outras configs do Apache
-RUN a2enmod rewrite
-RUN sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
-RUN docker-php-ext-install pdo pdo_mysql
+RUN a2enmod rewrite \
+ && sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# Instala dependências do sistema necessárias (git, unzip, libzip)
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+ && docker-php-ext-install pdo pdo_mysql zip \
+ && rm -rf /var/lib/apt/lists/*
 
 # Instala Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -30,4 +37,6 @@ RUN echo '<Directory /var/www/html/public>\n\
 
 # Workdir e instalação de dependências
 WORKDIR /var/www/html
-RUN composer install
+
+# Se já tiver um composer.lock no projeto, melhor usar composer install
+RUN composer install || true
